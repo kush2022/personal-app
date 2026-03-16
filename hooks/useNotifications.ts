@@ -168,11 +168,17 @@ export function useNotifications() {
       const notified = getDailyNotified();
       const intervalHabits = habitsStore
         .getAll()
-        .filter((h) => h.intervalHours && h.targetDays.includes(todayDow));
+        .filter(
+          (h) =>
+            (h.intervalHours || h.intervalSeconds) &&
+            h.targetDays.includes(todayDow),
+        );
 
       let changed = false;
       for (const habit of intervalHabits) {
-        const intervalMs = habit.intervalHours! * 60 * 60 * 1000;
+        const intervalMs = habit.intervalSeconds
+          ? habit.intervalSeconds * 1000
+          : habit.intervalHours! * 60 * 60 * 1000;
         const key = `interval_${habit.id}`;
         const lastFired = notified[key] ?? 0;
 

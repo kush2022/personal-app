@@ -34,6 +34,7 @@ export interface Habit {
   createdAt: string;
   streak: number;
   intervalHours?: number; // if set, notify every N hours (e.g. 1 for prayer, 2 for social media)
+  intervalSeconds?: number; // if set, notify every N seconds (dev/test)
   isDefault?: boolean; // marks a system-seeded habit
   reminderTime?: string;
 }
@@ -253,7 +254,7 @@ export const habitsStore = {
 
 // ─── Seed Default Habits ──────────────────────────────────────────────────────
 
-const SEED_KEY = "lifeos:defaults:seeded";
+const SEED_KEY = "lifeos:defaults:seeded:v2";
 
 export function seedDefaultHabits() {
   if (typeof window === "undefined") return;
@@ -277,6 +278,14 @@ export function seedDefaultHabits() {
         color: "warm", // maps to rose in the glass theme
         targetDays: allDays,
         intervalHours: 2, // remind every 2 hours
+        isDefault: true,
+      },
+      {
+        name: "Push Test (30s)",
+        emoji: "🔔",
+        color: "stone",
+        targetDays: allDays,
+        intervalSeconds: 30,
         isDefault: true,
       },
     ];
