@@ -11,17 +11,15 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  if (event.data) {
-    const data = event.data.json();
-    event.waitUntil(
-      self.registration.showNotification(data.title || "LifeOS", {
-        body: data.body || "You have a new notification",
-        icon: data.icon || "/favicon.ico",
-        badge: "/favicon.ico",
-        data: data.data || {},
-      }),
-    );
-  }
+  const data = event.data ? event.data.json() : {};
+  event.waitUntil(
+    self.registration.showNotification(data.title || "LifeOS", {
+      body: data.body || "You have a new notification",
+      icon: data.icon || "/favicon.ico",
+      badge: data.badge || "/favicon.ico",
+      data: data.data || {},
+    }),
+  );
 });
 
 self.addEventListener("notificationclick", (event) => {
