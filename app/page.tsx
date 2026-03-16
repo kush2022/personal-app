@@ -6,6 +6,7 @@ import { Notes } from "@/components/Notes";
 import { Tasks } from "@/components/Tasks";
 import { Habits } from "@/components/Habits";
 import { Expenses } from "@/components/Expenses";
+import { Gratitude } from "@/components/Gratitude";
 import { NotificationsToggle } from "@/components/NotificationsToggle";
 import { useNotifications } from "@/hooks/useNotifications";
 import { seedDefaultHabits } from "@/lib/store";
@@ -16,16 +17,24 @@ import {
   CheckSquare,
   Flame,
   Wallet,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Tab = "dashboard" | "notes" | "tasks" | "habits" | "expenses";
+type Tab =
+  | "dashboard"
+  | "notes"
+  | "tasks"
+  | "habits"
+  | "gratitude"
+  | "expenses";
 
 const TABS = [
   { key: "dashboard" as Tab, label: "Home", icon: LayoutDashboard },
   { key: "notes" as Tab, label: "Notes", icon: FileText },
   { key: "tasks" as Tab, label: "Tasks", icon: CheckSquare },
   { key: "habits" as Tab, label: "Habits", icon: Flame },
+  { key: "gratitude" as Tab, label: "Gratitude", icon: Heart },
   { key: "expenses" as Tab, label: "Expenses", icon: Wallet },
 ];
 
@@ -70,6 +79,7 @@ export default function Home() {
           {tab === "notes" && <Notes />}
           {tab === "tasks" && <Tasks />}
           {tab === "habits" && <Habits />}
+          {tab === "gratitude" && <Gratitude />}
           {tab === "expenses" && <Expenses />}
         </main>
 

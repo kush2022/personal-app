@@ -58,6 +58,14 @@ export interface Expense {
   createdAt: string;
 }
 
+export interface GratitudeEntry {
+  date: string; // "YYYY-MM-DD"
+  items: [string, string, string];
+  reflection: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ─── Keys ────────────────────────────────────────────────────────────────────
 
 const KEYS = {
@@ -65,6 +73,7 @@ const KEYS = {
   tasks: "lifeos:tasks",
   habits: "lifeos:habits",
   expenses: "lifeos:expenses",
+  gratitude: "lifeos:gratitude",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -313,5 +322,34 @@ export const expensesStore = {
   delete(id: string) {
     const expenses = expensesStore.getAll().filter((e) => e.id !== id);
     expensesStore.save(expenses);
+  },
+};
+
+export const gratitudeStore = {
+  getAll(): GratitudeEntry[] {
+    return load<GratitudeEntry[]>(KEYS.gratitude, []);
+  },
+  save(entries: GratitudeEntry[]) {
+    save(KEYS.gratitude, entries);
+  },
+  getByDate(date: string): GratitudeEntry | undefined {
+    return gratitudeStore.getAll().find((e) => e.date === date);
+  },
+  upsert(date: string, items: [string, string, string], reflection: string) {
+    const entries = gratitudeStore.getAll();
+    const idx = entries.findIndex((e) => e.date === date);
+    const now = new Date().toISOString();
+    if (idx === -1) {
+      entries.unshift({
+        date,
+        items,
+        reflection,
+        createdAt: now,
+        updatedAt: now,
+      });
+    } else {
+      entries[idx] = { ...entries[idx], items, reflection, updatedAt: now };
+    }
+    gratitudeStore.save(entries);
   },
 };

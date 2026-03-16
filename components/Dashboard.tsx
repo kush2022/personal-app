@@ -4,16 +4,17 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { notesStore, tasksStore, habitsStore } from "@/lib/store";
+import { notesStore, tasksStore, habitsStore, gratitudeStore } from "@/lib/store";
 import { getTodayKey, getLast7Days, getDayOfWeek } from "@/lib/utils";
-import { FileText, CheckSquare, Flame, TrendingUp } from "lucide-react";
+import { FileText, CheckSquare, Flame, TrendingUp, Heart } from "lucide-react";
 
 export function Dashboard() {
+  const today = getTodayKey();
+  const todayDate = new Date();
   const notes = notesStore.getAll();
   const tasks = tasksStore.getAll();
   const habits = habitsStore.getAll();
-  const today = getTodayKey();
-  const todayDate = new Date();
+  const gratitudeToday = gratitudeStore.getByDate(today);
   const todayDow = todayDate.getDay();
 
   const taskStats = useMemo(() => {
@@ -117,6 +118,37 @@ export function Dashboard() {
           color="sage"
         />
       </div>
+
+      {/* Gratitude */}
+      <Card className="fade-up fade-up-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Heart className="w-4 h-4 text-rose-300" /> Gratitude today
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {gratitudeToday ? (
+            <div className="space-y-2">
+              <ul className="text-sm list-disc list-inside space-y-1">
+                {gratitudeToday.items
+                  .filter(Boolean)
+                  .map((item, i) => (
+                    <li key={`gratitude-${i}`}>{item}</li>
+                  ))}
+              </ul>
+              {gratitudeToday.reflection && (
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {gratitudeToday.reflection}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Add 3 things you’re grateful for to set today’s tone.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Task progress bar */}
       {tasks.length > 0 && (
