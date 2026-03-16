@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -214,21 +220,23 @@ export function Tasks() {
               <div>
                 <Label htmlFor="task-priority">Priority</Label>
                 <Select
-                  id="task-priority"
-                  className="mt-1.5"
                   value={form.priority}
-                  onChange={(e) =>
+                  onValueChange={(value) =>
                     setForm((f) => ({
                       ...f,
-                      priority: e.target.value as Task["priority"],
+                      priority: value as Task["priority"],
                     }))
                   }
-                  options={[
-                    { label: "🟢 Low", value: "low" },
-                    { label: "🟡 Medium", value: "medium" },
-                    { label: "🔴 High", value: "high" },
-                  ]}
-                />
+                >
+                  <SelectTrigger id="task-priority" className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">🟢 Low</SelectItem>
+                    <SelectItem value="medium">🟡 Medium</SelectItem>
+                    <SelectItem value="high">🔴 High</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="task-due">Due date</Label>
