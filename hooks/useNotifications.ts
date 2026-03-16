@@ -4,8 +4,6 @@ import { useEffect, useRef } from "react";
 import { tasksStore, habitsStore } from "@/lib/store";
 import { getTodayKey } from "@/lib/utils";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function canNotify(): boolean {
   return (
     typeof window !== "undefined" &&
@@ -19,15 +17,13 @@ function sendNotification(title: string, body: string, tag?: string) {
   try {
     new Notification(title, {
       body,
-      tag, // deduplicates: same tag replaces previous
+      tag,
       icon: "/favicon.ico",
     });
-  } catch (e) {
-    console.error("Notification error", e);
+  } catch (error) {
+    console.error("Notification error", error);
   }
 }
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useNotifications() {
   const initialized = useRef(false);
@@ -37,7 +33,6 @@ export function useNotifications() {
     if (initialized.current) return;
     initialized.current = true;
 
-    // ── Helper: get daily-scoped notified tracker ──
     function getDailyNotified(): Record<string, number> {
       const today = getTodayKey();
       const raw = localStorage.getItem(`lifeos:notified:${today}`);
@@ -52,17 +47,16 @@ export function useNotifications() {
       );
     }
 
-    // ── 1. Task reminders ─────────────────────────────────────────────────────
     function checkTasks() {
       if (!canNotify()) return;
       const today = getTodayKey();
       const tasks = tasksStore.getAll();
       const notified = getDailyNotified();
+      let changed = false;
 
       const dueTasks = tasks.filter(
         (t) => !t.done && t.dueDate && t.dueDate <= today,
       );
-      let changed = false;
       for (const task of dueTasks) {
         const key = `task_${task.id}`;
         if (!notified[key]) {
@@ -75,10 +69,61 @@ export function useNotifications() {
           changed = true;
         }
       }
-      if (changed) saveDailyNotified(notified);
+
+      const now = new Date();
+      const currentTime = now.toTimeString().slice(0, 5);
+      const reminderTasks = tasks.filter(
+        (t) => t.reminderTime && t.reminderTime === currentTime,
+      );
+      for (const task of reminderTasks) {
+        const key = `task_reminder_${task.id}`;
+        if (!notified[key]) {
+          sendNotification("Task Reminder ⏰", `${task.title} reminder`, key);
+          notified[key] = Date.now();
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        saveDailyNotified(notified);
+      }
     }
 
-    // ── 2. Regular habit reminders (evening) ─────────────────────────────────
+    function checkHabitReminders() {
+      if (!canNotify()) return;
+      const now = new Date();
+      const currentTime = now.toTimeString().slice(0, 5);
+      const todayDow = now.getDay();
+      const notified = getDailyNotified();
+      let changed = false;
+
+      const reminderHabits = habitsStore
+        .getAll()
+        .filter(
+          (habit) =>
+            habit.reminderTime &&
+            habit.targetDays.includes(todayDow) &&
+            habit.reminderTime === currentTime,
+        );
+
+      for (const habit of reminderHabits) {
+        const key = `habit_reminder_${habit.id}`;
+        if (!notified[key]) {
+          sendNotification(
+            `${habit.emoji} ${habit.name}`,
+            `It's time for ${habit.name}`,
+            key,
+          );
+          notified[key] = Date.now();
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        saveDailyNotified(notified);
+      }
+    }
+
     function checkRegularHabits() {
       if (!canNotify()) return;
       const today = getTodayKey();
@@ -110,7 +155,6 @@ export function useNotifications() {
       }
     }
 
-    // ── 3. Interval-based habit reminders ────────────────────────────────────
     function checkIntervalHabits() {
       if (!canNotify()) return;
       const today = getTodayKey();
@@ -119,7 +163,6 @@ export function useNotifications() {
       const nowMs = now.getTime();
       const hour = now.getHours();
 
-      // Only fire between 6 AM and 10 PM
       if (hour < 6 || hour >= 22) return;
 
       const notified = getDailyNotified();
@@ -131,10 +174,9 @@ export function useNotifications() {
       for (const habit of intervalHabits) {
         const intervalMs = habit.intervalHours! * 60 * 60 * 1000;
         const key = `interval_${habit.id}`;
-        const lastFired = notified[key] ?? 0; // 0 means never fired today
+        const lastFired = notified[key] ?? 0;
 
         if (nowMs - lastFired >= intervalMs) {
-          // Tailor the body message to the habit
           let body = `Time for: ${habit.emoji} ${habit.name}`;
           if (habit.name.toLowerCase().includes("pray")) {
             body = `🙏 It's time to pray. Take a moment to connect with God.`;
@@ -151,17 +193,18 @@ export function useNotifications() {
           changed = true;
         }
       }
-      if (changed) saveDailyNotified(notified);
+      if (changed) {
+        saveDailyNotified(notified);
+      }
     }
 
-    // ── Main check ────────────────────────────────────────────────────────────
     function runChecks() {
       checkTasks();
+      checkHabitReminders();
       checkRegularHabits();
       checkIntervalHabits();
     }
 
-    // Run immediately, then every 60 seconds
     runChecks();
     const interval = setInterval(runChecks, 60 * 1000);
 

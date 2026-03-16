@@ -18,6 +18,7 @@ export interface Task {
   done: boolean;
   priority: "low" | "medium" | "high";
   dueDate?: string;
+  reminderTime?: string;
   tags: string[];
   createdAt: string;
   updatedAt: string;
@@ -34,6 +35,7 @@ export interface Habit {
   streak: number;
   intervalHours?: number; // if set, notify every N hours (e.g. 1 for prayer, 2 for social media)
   isDefault?: boolean; // marks a system-seeded habit
+  reminderTime?: string;
 }
 
 // ─── Expense ─────────────────────────────────────────────────────────────────

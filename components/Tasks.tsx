@@ -37,6 +37,7 @@ export function Tasks() {
     priority: "medium" as Task["priority"],
     dueDate: "",
     tags: "",
+    reminderTime: "",
   });
 
   const today = getTodayKey();
@@ -63,7 +64,7 @@ export function Tasks() {
   ).length;
 
   function openNew() {
-    setForm({ title: "", priority: "medium", dueDate: "", tags: "" });
+    setForm({ title: "", priority: "medium", dueDate: "", tags: "", reminderTime: "" });
     setEditTask(null);
     setIsOpen(true);
   }
@@ -74,6 +75,7 @@ export function Tasks() {
       priority: task.priority,
       dueDate: task.dueDate || "",
       tags: task.tags.join(", "),
+      reminderTime: task.reminderTime || "",
     });
     setEditTask(task);
     setIsOpen(true);
@@ -89,6 +91,7 @@ export function Tasks() {
       priority: form.priority,
       dueDate: form.dueDate || undefined,
       tags,
+      reminderTime: form.reminderTime || undefined,
       done: false,
     };
     if (editTask) {
@@ -216,7 +219,7 @@ export function Tasks() {
                 autoFocus
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="task-priority">Priority</Label>
                 <Select
@@ -250,6 +253,19 @@ export function Tasks() {
                   className="mt-1.5"
                 />
               </div>
+            </div>
+            <div>
+              <Label htmlFor="task-reminder">Reminder time</Label>
+              <Input
+                id="task-reminder"
+                type="time"
+                value={form.reminderTime}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, reminderTime: e.target.value }))
+                }
+                className="mt-1.5"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Optional</p>
             </div>
             <div>
               <Label htmlFor="task-tags" className="flex items-center gap-1.5">

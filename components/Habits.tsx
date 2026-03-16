@@ -76,6 +76,7 @@ export function Habits() {
     emoji: "🌅",
     color: "earth",
     targetDays: [1, 2, 3, 4, 5] as number[],
+    reminderTime: "",
   });
 
   const today = getTodayKey();
@@ -89,6 +90,7 @@ export function Habits() {
       emoji: "🌅",
       color: "earth",
       targetDays: [1, 2, 3, 4, 5],
+      reminderTime: "",
     });
     setEditHabit(null);
     setIsOpen(true);
@@ -100,6 +102,7 @@ export function Habits() {
       emoji: habit.emoji,
       color: habit.color,
       targetDays: habit.targetDays,
+      reminderTime: habit.reminderTime || "",
     });
     setEditHabit(habit);
     setIsOpen(true);
@@ -112,6 +115,7 @@ export function Habits() {
         emoji: form.emoji,
         color: form.color,
         targetDays: form.targetDays,
+        reminderTime: form.reminderTime || undefined,
       });
     } else {
       habitsStore.create({
@@ -119,6 +123,7 @@ export function Habits() {
         emoji: form.emoji,
         color: form.color,
         targetDays: form.targetDays,
+        reminderTime: form.reminderTime || undefined,
       });
     }
     refresh();
@@ -403,6 +408,19 @@ export function Habits() {
                   </button>
                 ))}
               </div>
+            </div>
+            <div>
+              <Label htmlFor="habit-reminder">Reminder time</Label>
+              <Input
+                id="habit-reminder"
+                type="time"
+                value={form.reminderTime}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, reminderTime: e.target.value }))
+                }
+                className="mt-1.5"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Optional</p>
             </div>
           </div>
           <DialogFooter className="flex-row justify-between sm:justify-between">
